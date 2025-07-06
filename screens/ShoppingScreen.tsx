@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,9 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { Ionicons } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
+import { useCart } from "../context/CartContext";
+import { useNavigation } from "@react-navigation/native";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 
 type Product = {
   id: string;
@@ -21,15 +24,58 @@ type Product = {
   image_url: string;
 };
 
-const ShoppingScreen = () => {
-  const [products, setProducts] = React.useState<Product[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [activeType, setActiveType] = React.useState<"license" | "device">(
-    "license"
-  );
-  const layout = useWindowDimensions();
+const auth = getAuth();
 
-  React.useEffect(() => {
+const ShoppingScreen = () => {
+  const { addToCart,items } = useCart();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeType, setActiveType] = useState<"license" | "device">("license");
+  const layout = useWindowDimensions();
+  const navigation = useNavigation();
+  const [user, setUser] = useState<User | null>(null);
+
+  useLayoutEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    navigation.setOptions({
+      headerTitle: "Store",
+      headerRight: () => (
+        <View style={styles.headerIcons}>
+          <TouchableOpacity onPress={() => navigation.navigate("CartScreen" as never)}>
+  <View style={{ position: "relative" }}>
+    <Ionicons name="cart-outline" size={24} style={styles.icon} />
+    {items.length > 0 && (
+      <View style={styles.badge}>
+        <Text style={styles.badgeText}>{items.length}</Text>
+      </View>
+    )}
+  </View>
+</TouchableOpacity>
+
+          {user ? (
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {user.email?.charAt(0).toUpperCase() || "?"}
+              </Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Login" as never)}
+            >
+              <Ionicons name="log-in-outline" size={24} style={styles.icon} />
+            </TouchableOpacity>
+          )}
+        </View>
+      ),
+    });
+
+    return () => unsubscribe();
+  }, [navigation]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const snapshot = await getDocs(collection(db, "products"));
@@ -50,34 +96,42 @@ const ShoppingScreen = () => {
 
   const filteredProducts = products.filter((p) => p.type === activeType);
 
-  //Card
   const renderProduct = ({ item, index }: { item: Product; index: number }) => (
     <Animatable.View
-  animation="fadeInUp"
-  delay={index * 100}
-  duration={200}
-  style={[styles.card, { width: layout.width / 2 - 20 }]}
->
-  <Image
-    source={{ uri: item.image_url }}
-    style={styles.image}
-    resizeMode="contain"
-  />
-
-  <View style={styles.cardContent}>
-    <Text style={styles.name} numberOfLines={2}>
-      {item.name}
-    </Text>
-
-    <View style={styles.rowBetween}>
-      <Text style={styles.price}>{item.price.toLocaleString()} ر.س</Text>
-
-      <TouchableOpacity style={styles.cartIcon}>
-        <Ionicons name="cart" size={18} color="white" />
-      </TouchableOpacity>
-    </View>
-  </View>
-</Animatable.View>
+      animation="fadeInUp"
+      delay={index * 100}
+      duration={200}
+      style={[styles.card, { width: layout.width / 2 - 20 }]}
+    >
+      <Image
+        source={{ uri: item.image_url }}
+        style={styles.image}
+        resizeMode="contain"
+      />
+      <View style={styles.cardContent}>
+        <Text style={styles.name} numberOfLines={2}>
+          {item.name}
+        </Text>
+        <View style={styles.rowBetween}>
+          <Text style={styles.price}>
+            {item.price?.toLocaleString?.() || 0} ر.س
+          </Text>
+          <TouchableOpacity
+            style={styles.cartIcon}
+            onPress={() =>
+              addToCart({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                image_url: item.image_url,
+              })
+            }
+          >
+            <Ionicons name="cart" size={18} color="white" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Animatable.View>
   );
 
   return (
@@ -95,7 +149,7 @@ const ShoppingScreen = () => {
               activeType === "license" ? styles.activeText : styles.inactiveText
             }
           >
-            licenses
+            Licenses
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -110,7 +164,7 @@ const ShoppingScreen = () => {
               activeType === "device" ? styles.activeText : styles.inactiveText
             }
           >
-            devices
+            Devices
           </Text>
         </TouchableOpacity>
       </View>
@@ -136,6 +190,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginVertical: 10,
+    backgroundColor: "#fff",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderRadius: 8,
+    paddingVertical: 8,
   },
   filterButton: {
     paddingVertical: 8,
@@ -155,60 +216,88 @@ const styles = StyleSheet.create({
     color: "black",
   },
   card: {
-  backgroundColor: "#fff",
-  borderRadius: 12,
-  margin: 8,
-  overflow: "hidden",
-  elevation: 3, // لأندرويد
-  shadowColor: "#000", // للـ iOS
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  flexDirection: "column",
-  justifyContent: "space-between",
-},
-
-image: {
-  width: "100%",
-  height: 100,
-  marginBottom: 8,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.2,
-  shadowRadius: 4,
-},
-
-cardContent: {
-  flex: 1,
-  paddingHorizontal: 8,
-  paddingBottom: 8,
-  justifyContent: "space-between",
-},
-
-name: {
-  fontSize: 14,
-  fontWeight: "bold",
-  color: "#333",
-  marginBottom: 6,
-},
-
-rowBetween: {
-  flexDirection: "row",
-  justifyContent: "space-between",
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    margin: 8,
+    overflow: "hidden",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
+  image: {
+    width: "100%",
+    height: 100,
+    marginBottom: 8,
+  },
+  cardContent: {
+    flex: 1,
+    paddingHorizontal: 8,
+    paddingBottom: 8,
+    justifyContent: "space-between",
+  },
+  name: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 6,
+  },
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  price: {
+    fontSize: 13,
+    color: "green",
+  },
+  cartIcon: {
+    backgroundColor: "black",
+    padding: 6,
+    borderRadius: 6,
+  },
+  headerIcons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingRight: 12,
+  },
+  icon: {
+    color: "#000",
+  },
+  avatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  badge: {
+  position: "absolute",
+  top: -5,
+  right: -10,
+  backgroundColor: "red",
+  borderRadius: 10,
+  paddingHorizontal: 5,
+  minWidth: 18,
+  height: 18,
+  justifyContent: "center",
   alignItems: "center",
+  zIndex: 1,
 },
-
-price: {
-  fontSize: 13,
-  color: "green",
+badgeText: {
+  color: "white",
+  fontSize: 10,
+  fontWeight: "bold",
 },
-
-cartIcon: {
-  backgroundColor: "black",
-  padding: 6,
-  borderRadius: 6,
-},
- 
 });
 
 export default ShoppingScreen;

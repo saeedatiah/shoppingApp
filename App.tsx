@@ -1,21 +1,52 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import ShoppingScreen from './screens/ShoppingScreen';
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View } from "react-native";
+import { CartProvider } from "./context/CartContext";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { RootStackParamList } from "./types/RootStackParamList";
+import { NavigationContainer } from "@react-navigation/native";
+import Login from "./screens/Login";
+import ShoppingScreen from "./screens/ShoppingScreen";
+import CartScreen from "./screens/CartScreen";
+import CheckoutScreen from "./screens/CheckoutScreen";
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <ShoppingScreen/>
-      <StatusBar style="auto" />
-    </View>
+    <CartProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Shopping">
+          <Stack.Screen
+            name="Shopping"
+            component={ShoppingScreen}
+            options={{ headerTitle: "Store" }}
+          />
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{ title: "Login" }}
+          />
+          <Stack.Screen
+            name="CartScreen"
+            component={CartScreen}
+            options={{ title: "Cart" }}
+          />
+          <Stack.Screen
+            name="Checkout"
+            component={CheckoutScreen}
+            options={{ title: "Chechout" }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </CartProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

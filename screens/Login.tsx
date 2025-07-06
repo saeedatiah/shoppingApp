@@ -4,6 +4,14 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../types/RootStackParamList";
+import { useNavigation } from "@react-navigation/native";
+
+type CartScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "CartScreen"
+>;
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("بريد غير صالح").required("مطلوب"),
@@ -11,6 +19,8 @@ const LoginSchema = Yup.object().shape({
 });
 
 const LoginScreen = () => {
+  const navigation = useNavigation<CartScreenNavigationProp>();
+
   const handleLogin = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -29,7 +39,14 @@ const LoginScreen = () => {
         validationSchema={LoginSchema}
         onSubmit={(values) => handleLogin(values.email, values.password)}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          errors,
+          touched,
+        }) => (
           <>
             <TextInput
               style={styles.input}
@@ -40,7 +57,9 @@ const LoginScreen = () => {
               keyboardType="email-address"
               autoCapitalize="none"
             />
-            {errors.email && touched.email && <Text style={styles.error}>{errors.email}</Text>}
+            {errors.email && touched.email && (
+              <Text style={styles.error}>{errors.email}</Text>
+            )}
 
             <TextInput
               style={styles.input}
@@ -50,9 +69,14 @@ const LoginScreen = () => {
               value={values.password}
               secureTextEntry
             />
-            {errors.password && touched.password && <Text style={styles.error}>{errors.password}</Text>}
+            {errors.password && touched.password && (
+              <Text style={styles.error}>{errors.password}</Text>
+            )}
 
-            <Button onPress={handleSubmit as any} title="تسجيل الدخول" />
+            <Button
+              onPress={() => navigation.navigate("CartScreen")}
+              title="تسجيل الدخول"
+            />
           </>
         )}
       </Formik>
