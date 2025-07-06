@@ -136,6 +136,9 @@ const ShoppingScreen = () => {
 
   return (
     <View style={styles.screen}>
+      <View>
+        offers
+      </View>
       <View style={styles.filterRow}>
         <TouchableOpacity
           style={[
