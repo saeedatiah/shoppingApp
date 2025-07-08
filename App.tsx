@@ -15,16 +15,17 @@ export default function App() {
   return (
     <CartProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Shopping">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen
             name="Shopping"
             component={ShoppingScreen}
-            options={{ headerTitle: "Store" }}
+            options={{ headerTitle: "Home" }}
           />
-          <Stack.Screen
+          <Stack.Screen //first modified screen "Login" 
             name="Login"
             component={Login}
-            options={{ title: "Login" }}
+            options={{ title: "" }}
+
           />
           <Stack.Screen
             name="CartScreen"
@@ -34,7 +35,7 @@ export default function App() {
           <Stack.Screen
             name="Checkout"
             component={CheckoutScreen}
-            options={{ title: "Chechout" }}
+            options={{ title: "Checkout" }}
           />
         </Stack.Navigator>
       </NavigationContainer>
