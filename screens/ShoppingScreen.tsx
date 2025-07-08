@@ -1,13 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-} from "react-native";
+import { View, Text, FlatList, Image, StyleSheet,TouchableOpacity, useWindowDimensions,} from "react-native";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { Ionicons } from "@expo/vector-icons";
@@ -187,7 +179,7 @@ const ShoppingScreen = () => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#e6f5f3",
   },
   filterRow: {
     flexDirection: "row",
@@ -219,15 +211,15 @@ const styles = StyleSheet.create({
     color: "black",
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     borderRadius: 12,
     margin: 8,
     overflow: "hidden",
     elevation: 3,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 10,
     flexDirection: "column",
     justifyContent: "space-between",
   },
@@ -255,7 +247,7 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 13,
-    color: "green",
+    color: "08998b",
   },
   cartIcon: {
     backgroundColor: "black",
