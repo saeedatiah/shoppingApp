@@ -8,6 +8,7 @@ import Login from "./screens/Login";
 import ShoppingScreen from "./screens/ShoppingScreen";
 import CartScreen from "./screens/CartScreen";
 import CheckoutScreen from "./screens/CheckoutScreen";
+import ProductDetails from "./screens/ProductDetails";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,6 +37,11 @@ export default function App() {
             name="Checkout"
             component={CheckoutScreen}
             options={{ title: "Checkout" }}
+          />
+          <Stack.Screen
+            name="ProductDetails"
+            component={ProductDetails}
+            options={{ title: "Product Details" }}
           />
         </Stack.Navigator>
       </NavigationContainer>

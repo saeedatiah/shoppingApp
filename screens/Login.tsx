@@ -8,6 +8,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/RootStackParamList";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import FormikInput from "../components/ui/FormikInput";
 
 type CartScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -72,54 +73,23 @@ const LoginScreen = () => {
               touched,
             }) => (
               <>
-                <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Email</Text>
-                  <View style={styles.inputWithIcon}>
-                    <MaterialIcons 
-                      name="email" 
-                      size={20} 
-                      color="#999" 
-                      style={styles.inputIcon} 
-                    />
-                    <TextInput
-                      style={styles.input}
-                      placeholder="e.g. Norah@gmail.com"
-                      placeholderTextColor="#D9D9D9"
-                      onChangeText={handleChange("email")}
-                      onBlur={handleBlur("email")}
-                      value={values.email}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                    />
-                  </View>
-                  {errors.email && touched.email && (
-                    <Text style={styles.error}>{errors.email}</Text>
-                  )}
-                </View>
+                <FormikInput
+                  name="email"
+                  label="Email"
+                  placeholder="e.g. Norah@gmail.com"
+                  type="email"
+                  icon="email"
+                />
 
-                <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Password</Text>
-                  <View style={styles.inputWithIcon}>
-                    <FontAwesome 
-                      name="lock" 
-                      size={20} 
-                      color="#999" 
-                      style={styles.inputIcon} 
-                    />
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Tip: Use uppercase, numbers, and !@#"
-                      placeholderTextColor="#D9D9D9"
-                      onChangeText={handleChange("password")}
-                      onBlur={handleBlur("password")}
-                      value={values.password}
-                      secureTextEntry
-                    />
-                  </View>
-                  {errors.password && touched.password && (
-                    <Text style={styles.error}>{errors.password}</Text>
-                  )}
-                </View>
+                
+                <FormikInput
+                  name="password"
+                  label="Password"
+                  placeholder="Tip: Use uppercase, numbers, and !@#"
+                  type="password"
+                  icon="lock"
+                />
+                
 
                 <TouchableOpacity 
                   style={styles.loginButton}

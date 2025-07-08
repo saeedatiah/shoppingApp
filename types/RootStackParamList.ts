@@ -5,4 +5,5 @@ export type RootStackParamList = {
   Checkout: undefined;
   PreviousOrders: undefined;
   Shopping: undefined;
+  ProductDetails: { product: any };
 };

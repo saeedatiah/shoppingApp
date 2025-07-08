@@ -7,14 +7,13 @@ import * as Animatable from "react-native-animatable";
 import { useCart } from "../context/CartContext";
 import { useNavigation } from "@react-navigation/native";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { Product } from "../types";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../types/RootStackParamList"; 
 
-type Product = {
-  id: string;
-  name: string;
-  type: "license" | "device";
-  price: number;
-  image_url: string;
-};
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Shopping">;
+
+
 
 const auth = getAuth();
 
@@ -24,7 +23,7 @@ const ShoppingScreen = () => {
   const [loading, setLoading] = useState(true);
   const [activeType, setActiveType] = useState<"license" | "device">("license");
   const layout = useWindowDimensions();
-  const navigation = useNavigation();
+const navigation = useNavigation<NavigationProp>();
   const [user, setUser] = useState<User | null>(null);
 
   useLayoutEffect(() => {
@@ -89,7 +88,12 @@ const ShoppingScreen = () => {
   const filteredProducts = products.filter((p) => p.type === activeType);
 
   const renderProduct = ({ item, index }: { item: Product; index: number }) => (
-    <Animatable.View
+
+    <TouchableOpacity
+    onPress={() => navigation.navigate("ProductDetails", { product: item })}
+    activeOpacity={0.8}
+  >
+ <Animatable.View
       animation="fadeInUp"
       delay={index * 100}
       duration={200}
@@ -124,6 +128,9 @@ const ShoppingScreen = () => {
         </View>
       </View>
     </Animatable.View>
+
+  </TouchableOpacity>
+   
   );
 
   return (
